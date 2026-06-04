@@ -195,7 +195,7 @@ def train(_):
     if not run_train_flag.value:
         with log: print("Set RunTrain=True before starting training.")
         return
-    run_cmd("Train", f'cd ai-toolkit; "{py()}" run.py ../{cfg.as_posix()}')
+    run_cmd("Train", f'cd /d ai-toolkit && "{py()}" run.py ../{cfg.as_posix()}')
 btn_train.on_click(train)
 train_box = W.VBox([W.HBox([run_train_flag, btn_train])])
 
