@@ -168,19 +168,38 @@ bucket_step = W.IntText(description="Bucket_step", value=64, style=style, layout
 sample_prompt = W.Text(description="Sampler_Prompt", value="A portrait of a person in DB9 style, highly detailed", style=style, layout=wide)
 btn_config = W.Button(description="Generate Config", button_style="success", icon="cog")
 def gen_config(_):
-    from scripts.config_generator import generate_config
-    res = int(str(resolution.value).split(',')[0].strip())
-    bs = min(batch_size.value, 1) if low_vram.value else batch_size.value
-    model_path = "black-forest-labs/FLUX.2-klein-base-9B" if type_train.value == "FLUX.2-klein-base-9B" else "black-forest-labs/FLUX.1-dev"
-    control_path = ""
-    if training_mode.value != "text2img":
-        if not control_folder.value: raise ValueError("ControlFolder is required for img2img_upscale")
-        control_path = str((PROJECT_ROOT / control_folder.value).resolve()).replace('\\', '/')
-    yml = generate_config(project_name=lora_name.value, model_path=model_path, dataset_path=str((PROJECT_ROOT / processed_folder.value).resolve()).replace('\\', '/'), output_path=str((PROJECT_ROOT / output_folder.value).resolve()).replace('\\', '/'), lora_rank=dim.value, lora_alpha=alpha.value, batch_size=bs, learning_rate=lr.value, train_steps=steps.value, gradient_accumulation=1, resolution=res, enable_bucketing=bucketing.value, bucket_step=bucket_step.value, min_bucket_reso=min_bucket.value, max_bucket_reso=max_bucket.value, flip_aug=False, color_aug=False, optimizer=optimizer.value, lr_scheduler=lr_scheduler.value, warmup_steps=100, gradient_checkpointing=grad_ckpt.value, quantize=False, save_every=save_steps.value, sample_every=sample_steps.value, sample_prompts=[sample_prompt.value] if sample_prompt.value else [], training_mode=training_mode.value, control_folder_path=control_path)
-    Path('configs').mkdir(exist_ok=True)
-    path = Path('configs') / f'{lora_name.value}.yaml'
-    path.write_text(yml, encoding='utf-8')
-    with log: print(f"Config saved: {path} | Resolution: {res}px | Mode: {training_mode.value}")
+    try:
+        from scripts.config_generator import generate_config
+        res = int(str(resolution.value).split(',')[0].strip())
+        bs = min(batch_size.value, 1) if low_vram.value else batch_size.value
+        model_path = "black-forest-labs/FLUX.2-klein-base-9B" if type_train.value == "FLUX.2-klein-base-9B" else "black-forest-labs/FLUX.1-dev"
+        processed_path = PROJECT_ROOT / processed_folder.value
+        img_path = processed_path / "img"
+        cap_path = processed_path / "captions"
+        if not img_path.exists() or not any(img_path.iterdir()):
+            raise FileNotFoundError(f"No target images found in {img_path}. Build pairs first.")
+        if not cap_path.exists() or not any(cap_path.glob('*.txt')):
+            raise FileNotFoundError(f"No captions found in {cap_path}. Build pairs or create captions first.")
+        control_path = ""
+        if training_mode.value != "text2img":
+            if not control_folder.value:
+                raise ValueError("ControlFolder is required for img2img_upscale")
+            control_dir = PROJECT_ROOT / control_folder.value
+            if not control_dir.exists() or not any(control_dir.iterdir()):
+                raise FileNotFoundError(f"No control images found in {control_dir}. Build pairs first.")
+            control_path = str(control_dir.resolve()).replace('\\', '/')
+        yml = generate_config(project_name=lora_name.value, model_path=model_path, dataset_path=str(processed_path.resolve()).replace('\\', '/'), output_path=str((PROJECT_ROOT / output_folder.value).resolve()).replace('\\', '/'), lora_rank=dim.value, lora_alpha=alpha.value, batch_size=bs, learning_rate=lr.value, train_steps=steps.value, gradient_accumulation=1, resolution=res, enable_bucketing=bucketing.value, bucket_step=bucket_step.value, min_bucket_reso=min_bucket.value, max_bucket_reso=max_bucket.value, flip_aug=False, color_aug=False, optimizer=optimizer.value, lr_scheduler=lr_scheduler.value, warmup_steps=100, gradient_checkpointing=grad_ckpt.value, quantize=False, save_every=save_steps.value, sample_every=sample_steps.value, sample_prompts=[sample_prompt.value] if sample_prompt.value else [], training_mode=training_mode.value, control_folder_path=control_path)
+        Path('configs').mkdir(exist_ok=True)
+        path = Path('configs') / f'{lora_name.value}.yaml'
+        path.write_text(yml, encoding='utf-8')
+        with log:
+            print(f"Config saved: {path} | Resolution: {res}px | Mode: {training_mode.value}")
+            print(f"Targets: {len(list(img_path.iterdir()))} | Captions: {len(list(cap_path.glob('*.txt')))}")
+            if control_path:
+                print(f"Control: {control_path}")
+    except Exception as exc:
+        with log:
+            print(f"ERROR Generate Config: {type(exc).__name__}: {exc}")
 btn_config.on_click(gen_config)
 config_box = W.VBox([type_train, note("Nen dung Low_VRAM neu bi OOM"), W.HBox([training_mode, low_vram, grad_ckpt, bucketing]), W.HBox([lora_name, output_folder]), W.HBox([steps, save_steps, sample_steps]), resolution, W.HBox([batch_size, lr, lr_scheduler]), W.HBox([dim, alpha, optimizer]), W.HBox([min_bucket, max_bucket, bucket_step]), sample_prompt, btn_config])
 
