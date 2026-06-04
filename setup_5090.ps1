@@ -39,6 +39,18 @@ function Get-PythonCommand {
     throw "Python 3.10 or 3.11 was not found. Install Python 3.10/3.11 from python.org, enable 'Add python.exe to PATH', then rerun setup_5090.bat. Do not use Python 3.13/3.14 for this trainer because some training dependencies may need source builds."
 }
 
+function Invoke-CommandArray($CommandArray, $Arguments) {
+    $exe = $CommandArray[0]
+    $baseArgs = @()
+    if ($CommandArray.Count -gt 1) {
+        $baseArgs = $CommandArray[1..($CommandArray.Count - 1)]
+    }
+    & $exe @baseArgs @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "Command failed: $exe $($baseArgs -join ' ') $($Arguments -join ' ')"
+    }
+}
+
 function Invoke-VenvPython($Arguments) {
     & $VenvPython @Arguments
     if ($LASTEXITCODE -ne 0) {
@@ -71,13 +83,11 @@ if ($nvidia) {
 Write-Step "Checking Python"
 $PythonCommand = Get-PythonCommand
 Write-Host "Using Python command: $($PythonCommand -join ' ')"
-& $PythonCommand --version
-if ($LASTEXITCODE -ne 0) { throw "Python check failed" }
+Invoke-CommandArray $PythonCommand @('--version')
 
 Write-Step "Creating virtual environment"
 if (-not (Test-Path ".venv\Scripts\python.exe")) {
-    & $PythonCommand -m venv .venv
-    if ($LASTEXITCODE -ne 0) { throw "Failed to create .venv" }
+    Invoke-CommandArray $PythonCommand @('-m', 'venv', '.venv')
 } else {
     Write-Ok ".venv already exists"
 }
