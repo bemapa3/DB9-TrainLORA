@@ -125,7 +125,12 @@ def main():
     if not img_dir.exists() or not img_dir.is_dir():
         parser.error(f"Input path '{args.input}' does not exist or is not a directory.")
 
-    cap_dir = Path(args.output) if args.output else img_dir
+    if args.output:
+        cap_dir = Path(args.output)
+    else:
+        # Default: sibling 'captions' folder (matches config_generator expectation)
+        cap_dir = img_dir.parent / "captions"
+        print(f"[Florence] No --output specified, using: {cap_dir}")
     cap_dir.mkdir(parents=True, exist_ok=True)
 
     task_prompt = CAPTION_TASKS[args.length]

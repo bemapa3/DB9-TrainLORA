@@ -207,7 +207,7 @@ prompt = "A portrait of a person in DB9 style, highly detailed"
 image = pipe(
     prompt,
     num_inference_steps=28,
-    guidance_scale=3.5,
+    guidance_scale=1.0,  # Flux does not use traditional CFG
     height=1536,
     width=1536,
 ).images[0]
