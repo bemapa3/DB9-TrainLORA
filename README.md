@@ -72,3 +72,23 @@ This checks notebook JSON, generated config shape, expected project/model defaul
 
 - ai-toolkit: https://github.com/ostris/ai-toolkit
 - Flux 2 Klein: https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9B
+
+## One-click RTX 5090 setup
+
+On Windows, double-click `setup_5090.bat` from the repository folder. It will:
+
+- pull the latest code
+- detect NVIDIA GPU information
+- create `.venv`
+- install PyTorch CUDA 12.8 wheels for RTX 5090-class systems
+- install project requirements
+- clone/update `ai-toolkit`
+- create runtime folders
+- run `python verify.py`
+
+After it finishes, put training images in `datasets/raw`, edit `.env` if Gemini/Hugging Face tokens are needed, then run:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+jupyter notebook
+```

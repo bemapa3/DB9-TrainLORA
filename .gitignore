@@ -3,3 +3,6 @@ __pycache__/
 .env
 datasets/
 output/
+.venv/
+outputs/
+ai-toolkit/
