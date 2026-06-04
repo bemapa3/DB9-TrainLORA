@@ -92,3 +92,19 @@ After it finishes, put training images in `datasets/raw`, edit `.env` if Gemini/
 .\.venv\Scripts\Activate.ps1
 jupyter notebook
 ```
+
+## Launcher app
+
+For a simple clickable control panel, double-click `launcher_app.bat`. The launcher shows common commands and buttons for:
+
+- full RTX 5090 setup
+- verification
+- opening Jupyter
+- opening data/output folders
+- editing `.env`
+- cleaning images
+- Gemini captioning
+- training
+- CUDA check
+
+Long-running jobs open in separate PowerShell windows so their logs remain visible.
