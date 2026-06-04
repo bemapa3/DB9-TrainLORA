@@ -164,10 +164,34 @@ with open(config_path, "w", encoding="utf-8") as f:
 
 print(f"Config saved to {{config_path}}")'''
 
+
+
+flux2_validation_warning_code = '''FLUX2_KLEIN_MAX_RESOLUTION = 2048
+
+print("Flux 2 Klein validation")
+print(f"- Max supported resolution: {FLUX2_KLEIN_MAX_RESOLUTION}px")
+print(f"- Current resolution: {resolution}px")
+print(f"- Bucket range: {min_bucket_reso}-{max_bucket_reso}px, step {bucket_step}px")
+
+if resolution > FLUX2_KLEIN_MAX_RESOLUTION:
+    raise ValueError("Flux 2 Klein max resolution is 2048px. Lower resolution before generating config.")
+if max_bucket_reso > FLUX2_KLEIN_MAX_RESOLUTION:
+    raise ValueError("Flux 2 Klein max bucket resolution is 2048px. Lower max_bucket_reso before generating config.")
+if min_bucket_reso > max_bucket_reso:
+    raise ValueError("min_bucket_reso cannot be greater than max_bucket_reso.")
+if bucket_step <= 0 or min_bucket_reso % bucket_step != 0 or max_bucket_reso % bucket_step != 0:
+    raise ValueError("Bucket min/max must be divisible by a positive bucket_step.")
+if enable_bucketing and not (min_bucket_reso <= resolution <= max_bucket_reso):
+    raise ValueError("Resolution must be inside the bucket range when bucketing is enabled.")
+
+print("Validation passed.")'''
+
 save_notebook("3_Train_Config.ipynb", [
     md_cell("# 3. Train Config\n\nTao file YAML cau hinh cho ai-toolkit."),
     code_cell(cwd_cell_code),
     code_cell(code_config),
+    md_cell("## Flux 2 Klein Validation"),
+    code_cell(flux2_validation_warning_code),
 ])
 
 save_notebook("4_Train.ipynb", [

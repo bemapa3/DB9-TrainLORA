@@ -1,19 +1,67 @@
 import yaml
 
+FLUX2_KLEIN_MAX_RESOLUTION = 2048
 
 # DB9-compatible bucket ratios (matching db9_flux_locked_upscale tile sizes)
 # Tile sizes: 512-2048 step 64, supports non-square tiles
 DB9_BUCKET_RATIOS = [
-    (1, 1),    # 1:1   square
-    (3, 4),    # 3:4   portrait
-    (4, 3),    # 4:3   landscape
-    (2, 3),    # 2:3   portrait
-    (3, 2),    # 3:2   landscape
-    (9, 16),   # 9:16  tall portrait
-    (16, 9),   # 16:9  wide landscape
-    (1, 2),    # 1:2   tall
-    (2, 1),    # 2:1   wide
+    (1, 1),
+    (3, 4),
+    (4, 3),
+    (2, 3),
+    (3, 2),
+    (9, 16),
+    (16, 9),
+    (1, 2),
+    (2, 1),
 ]
+
+
+def _is_flux2_klein(model_path: str) -> bool:
+    normalized = model_path.lower()
+    return "flux.2-klein" in normalized or "flux2-klein" in normalized
+
+
+def validate_training_config(
+    model_path: str,
+    resolution: int,
+    enable_bucketing: bool,
+    bucket_step: int,
+    min_bucket_reso: int,
+    max_bucket_reso: int,
+) -> None:
+    if resolution <= 0:
+        raise ValueError("resolution must be greater than 0")
+
+    if _is_flux2_klein(model_path) and resolution > FLUX2_KLEIN_MAX_RESOLUTION:
+        raise ValueError(
+            "Flux 2 Klein supports a maximum training/sample resolution of "
+            f"{FLUX2_KLEIN_MAX_RESOLUTION}px; got {resolution}px"
+        )
+
+    if min_bucket_reso <= 0 or max_bucket_reso <= 0:
+        raise ValueError("bucket resolutions must be greater than 0")
+    if min_bucket_reso > max_bucket_reso:
+        raise ValueError("min_bucket_reso cannot be greater than max_bucket_reso")
+    if bucket_step <= 0:
+        raise ValueError("bucket_step must be greater than 0")
+    if min_bucket_reso % bucket_step != 0:
+        raise ValueError("min_bucket_reso must be divisible by bucket_step")
+    if max_bucket_reso % bucket_step != 0:
+        raise ValueError("max_bucket_reso must be divisible by bucket_step")
+
+    if enable_bucketing:
+        if resolution < min_bucket_reso or resolution > max_bucket_reso:
+            raise ValueError(
+                "resolution must be within [min_bucket_reso, max_bucket_reso] "
+                "when bucketing is enabled"
+            )
+
+    if _is_flux2_klein(model_path) and max_bucket_reso > FLUX2_KLEIN_MAX_RESOLUTION:
+        raise ValueError(
+            "Flux 2 Klein max_bucket_reso cannot exceed "
+            f"{FLUX2_KLEIN_MAX_RESOLUTION}px; got {max_bucket_reso}px"
+        )
 
 
 def generate_config(
@@ -42,40 +90,28 @@ def generate_config(
     save_every: int,
     sample_every: int,
     sample_prompts: list,
-    # --- New parameters for img2img / upscale training ---
     training_mode: str = "text2img",
     control_folder_path: str = "",
     trigger_word: str = "",
-    # --- Model Architecture ---
-    model_type: str = "flux",  # "flux", "sdxl", "sd15"
-
+    model_type: str = "flux",
 ) -> str:
-    """
-    Generate ai-toolkit YAML config.
-    
-    training_mode:
-      - "text2img"        : Standard LoRA (text prompt -> image)
-      - "img2img_upscale" : Upscale LoRA (degraded input -> sharp output)
-      - "img2img_kontext" : Kontext/Edit LoRA (control image -> result image)
-    
-    control_folder_path:
-      Required for img2img modes. Path to the folder containing
-      condition/control images (e.g., degraded/blurred images).
-      File names must match the training images.
-    
-    Returns:
-        YAML string ready to write to file
-    """
-    
-    # Validate training mode
+    """Generate ai-toolkit YAML config."""
     valid_modes = ("text2img", "img2img_upscale", "img2img_kontext")
     if training_mode not in valid_modes:
         raise ValueError(f"training_mode must be one of {valid_modes}, got '{training_mode}'")
-    
+
     if training_mode != "text2img" and not control_folder_path:
         raise ValueError(f"control_folder_path is required for training_mode='{training_mode}'")
-    
-    # Build dataset config
+
+    validate_training_config(
+        model_path=model_path,
+        resolution=resolution,
+        enable_bucketing=enable_bucketing,
+        bucket_step=bucket_step,
+        min_bucket_reso=min_bucket_reso,
+        max_bucket_reso=max_bucket_reso,
+    )
+
     dataset_config = {
         "folder_path": f"{dataset_path}/img",
         "caption_ext": "txt",
@@ -89,25 +125,18 @@ def generate_config(
         "flip_aug": flip_aug,
         "color_aug": color_aug,
     }
-    
-    # Add control/condition folder for img2img modes
+
     if training_mode in ("img2img_upscale", "img2img_kontext"):
         dataset_config["control_path"] = control_folder_path
-        # For upscale training, disable flip_aug to keep pairs aligned
         if training_mode == "img2img_upscale":
             dataset_config["flip_aug"] = False
             dataset_config["random_crop"] = False
-    
-    # Add trigger word to caption if specified
+
     if trigger_word:
         dataset_config["default_caption"] = trigger_word
-    
-    # Determine trainer type
+
     trainer_type = "sd_trainer"
-    if training_mode == "img2img_kontext":
-        trainer_type = "sd_trainer"  # ai-toolkit uses same trainer with control_path
-    
-    # Build model config
+
     model_config = {
         "name_or_path": model_path,
         "quantize": quantize,
@@ -118,8 +147,7 @@ def generate_config(
         model_config["is_xl"] = True
     elif model_type.lower() == "sd15":
         model_config["is_v2"] = False
-    
-    # Build train config
+
     train_config = {
         "batch_size": batch_size,
         "steps": train_steps,
@@ -136,12 +164,10 @@ def generate_config(
         "sample_every": sample_every,
         "sample_prompts": sample_prompts if sample_prompts else [],
     }
-    
-    # Flux requires flowmatch
+
     if model_type.lower() == "flux":
         train_config["noise_scheduler"] = "flowmatch"
-    
-    # Build sample config
+
     sample_config = {
         "sampler": "flowmatch" if model_type.lower() == "flux" else "euler_a",
         "sample_steps": 20,
@@ -149,7 +175,7 @@ def generate_config(
         "width": resolution,
         "height": resolution,
     }
-    
+
     config_dict = {
         "job": "extension",
         "config": {
@@ -183,8 +209,9 @@ def generate_config(
             "db9_bucket_step": bucket_step,
             "db9_min_reso": min_bucket_reso,
             "db9_max_reso": max_bucket_reso,
+            "flux2_klein_max_resolution": FLUX2_KLEIN_MAX_RESOLUTION,
         },
     }
-    
+
     yaml_str = yaml.safe_dump(config_dict, sort_keys=False, allow_unicode=True)
     return "---\n" + yaml_str
