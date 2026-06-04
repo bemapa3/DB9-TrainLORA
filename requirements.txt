@@ -16,3 +16,4 @@ jupyter
 bitsandbytes
 timm
 einops
+torchaudio

@@ -104,7 +104,7 @@ Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'pip', 'wheel')
 Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'setuptools<82')
 
 Write-Step "Installing PyTorch for RTX 5090 / CUDA 12.8"
-Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'torch', 'torchvision', '--index-url', 'https://download.pytorch.org/whl/cu128')
+Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'torch', 'torchvision', 'torchaudio', '--index-url', 'https://download.pytorch.org/whl/cu128')
 
 Write-Step "Installing DB9 toolkit requirements"
 Invoke-VenvPython @('-m', 'pip', 'install', '-r', 'requirements.txt')
