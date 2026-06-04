@@ -100,13 +100,15 @@ if ($venvVersion -notin @('3.10', '3.11')) {
 Write-Ok ".venv Python version: $venvVersion"
 
 Write-Step "Upgrading pip"
-Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'pip', 'setuptools', 'wheel')
+Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'pip', 'wheel')
+Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'setuptools<82')
 
 Write-Step "Installing PyTorch for RTX 5090 / CUDA 12.8"
 Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'torch', 'torchvision', '--index-url', 'https://download.pytorch.org/whl/cu128')
 
 Write-Step "Installing DB9 toolkit requirements"
 Invoke-VenvPython @('-m', 'pip', 'install', '-r', 'requirements.txt')
+Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'setuptools<82')
 
 Write-Step "Checking CUDA from Python"
 $cudaCheck = @'
@@ -154,6 +156,7 @@ if (-not $SkipToolkit) {
     if (Test-Path "ai-toolkit\requirements.txt") {
         Write-Step "Installing ai-toolkit requirements"
         Invoke-VenvPython @('-m', 'pip', 'install', '-r', 'ai-toolkit\requirements.txt')
+        Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'setuptools<82')
     } else {
         Write-Warn "ai-toolkit requirements.txt not found; skipped"
     }
