@@ -113,6 +113,37 @@ def run_tiles(_):
 btn_tiles.on_click(run_tiles)
 tile_box = W.VBox([tile_enable, W.HBox([tile_size, tile_overlap, max_tiles]), W.HBox([min_detail, degrade_scale, blur_radius, jpeg_quality]), tile_caption, btn_tiles])
 
+
+# 2.1c User-provided size degrade pairs
+pair_input = W.Text(description="InputBlurFolder", value="datasets/input_blur", style=style, layout=wide)
+pair_output = W.Text(description="SharpOutputFolder", value="datasets/output_sharp", style=style, layout=wide)
+pair_processed = W.Text(description="PairProcessedFolder", value="datasets/processed", style=style, layout=wide)
+pair_caption = W.Text(description="Fallback_Caption", value="upscale restoration, sharp high quality result", style=style, layout=wide)
+pair_overwrite = W.Checkbox(description="Overwrite_Pairs", value=True, indent=False)
+btn_open_pair_input = W.Button(description="Open Input Blur", icon="folder-open")
+btn_open_pair_output = W.Button(description="Open Sharp Output", icon="folder-open")
+btn_pairs = W.Button(description="Build Size-Degrade Pairs", button_style="warning", icon="exchange")
+btn_open_pair_input.on_click(lambda _: open_folder(PROJECT_ROOT / pair_input.value))
+btn_open_pair_output.on_click(lambda _: open_folder(PROJECT_ROOT / pair_output.value))
+def run_pairs(_):
+    cmd = f'"{py()}" scripts/build_size_degrade_pairs.py --input "{pair_input.value}" --output "{pair_output.value}" --processed "{pair_processed.value}" --caption "{pair_caption.value}"'
+    if pair_overwrite.value:
+        cmd += ' --overwrite'
+    run_cmd("Build size-degrade pairs", cmd)
+    processed_folder.value = pair_processed.value
+    control_folder.value = str(Path(pair_processed.value) / "control")
+    training_mode.value = "img2img_upscale"
+btn_pairs.on_click(run_pairs)
+pair_box = W.VBox([
+    note("1 folder output sharp co image+caption theo ten goc; 1 folder input blur co file dang tenanh_200, tenanh_2048"),
+    pair_output,
+    pair_input,
+    pair_processed,
+    pair_caption,
+    pair_overwrite,
+    W.HBox([btn_open_pair_output, btn_open_pair_input, btn_pairs]),
+])
+
 # 2.2 Config
 type_train = W.Dropdown(description="TypeTrain", options=["FLUX.2-klein-base-9B", "Flux"], value="FLUX.2-klein-base-9B", style=style, layout=wide)
 training_mode = W.Dropdown(description="Training_Mode", options=["text2img", "img2img_upscale"], value="text2img", style=style, layout=third)
@@ -168,7 +199,7 @@ def train(_):
 btn_train.on_click(train)
 train_box = W.VBox([W.HBox([run_train_flag, btn_train])])
 
-accordion = W.Accordion(children=[setup_box, data_box, tile_box, config_box, train_box])
+accordion = W.Accordion(children=[setup_box, data_box, tile_box, pair_box, config_box, train_box])
 for i, title in enumerate(["☕ 1. Cai dat", "✨ 2.1 Xu ly du lieu", "🧩 2.1b Upscale detail", "⚙️ 2.2 Cai dat train", "🧪 3. Train"]):
     accordion.set_title(i, title)
 

@@ -150,9 +150,23 @@ def verify_upscale_detail_script() -> None:
         "caption output": "caption_path.write_text" in source,
         "detail filter": "min_detail_score" in source,
     }
+    pair_path = ROOT / "scripts" / "build_size_degrade_pairs.py"
+    if not pair_path.exists():
+        fail("Missing build_size_degrade_pairs.py")
+    pair_source = pair_path.read_text(encoding="utf-8")
+    checks.update({
+        "size suffix parser": "SIZE_SUFFIX_RE" in pair_source,
+        "sharp output matcher": "find_sharp" in pair_source,
+        "pair control output": "control_dir" in pair_source,
+        "pair caption copy": "copy_caption" in pair_source,
+    })
+    ui_source = (ROOT / "scripts" / "db9studio_ui.py").read_text(encoding="utf-8")
+    checks.update({
+        "DB9Studio hidden UI": "Build Size-Degrade Pairs" in ui_source,
+    })
     failed = [name for name, ok in checks.items() if not ok]
     if failed:
-        fail("Upscale detail script checks failed: " + ", ".join(failed))
+        fail("Upscale/pair script checks failed: " + ", ".join(failed))
 
 
 def main() -> None:
