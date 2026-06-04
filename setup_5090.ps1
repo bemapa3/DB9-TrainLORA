@@ -36,10 +36,7 @@ function Get-PythonCommand {
         if ($versions -match '3\.11') { return @('py', '-3.11') }
     }
 
-    $python = Get-Command python -ErrorAction SilentlyContinue
-    if ($python) { return @('python') }
-
-    throw "Python was not found. Install Python 3.10 or 3.11, then run this file again."
+    throw "Python 3.10 or 3.11 was not found. Install Python 3.10/3.11 from python.org, enable 'Add python.exe to PATH', then rerun setup_5090.bat. Do not use Python 3.13/3.14 for this trainer because some training dependencies may need source builds."
 }
 
 function Invoke-VenvPython($Arguments) {
@@ -86,6 +83,11 @@ if (-not (Test-Path ".venv\Scripts\python.exe")) {
 }
 
 $script:VenvPython = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
+$venvVersion = & $VenvPython -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
+if ($venvVersion -notin @('3.10', '3.11')) {
+    throw ".venv uses Python $venvVersion. Delete .venv and rerun setup_5090.bat after installing Python 3.10 or 3.11."
+}
+Write-Ok ".venv Python version: $venvVersion"
 
 Write-Step "Upgrading pip"
 Invoke-VenvPython @('-m', 'pip', 'install', '--upgrade', 'pip', 'setuptools', 'wheel')
