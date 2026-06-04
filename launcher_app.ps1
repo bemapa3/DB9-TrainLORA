@@ -208,8 +208,8 @@ Add-Button "CUDA Check" 775 210 140 {
 
 
 Add-Button "DB9Studio-style UI" 495 254 140 {
-    Set-Commands ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9_Toolkit_Training_Local.ipynb"
-    Start-Detached "DB9Studio-style notebook" ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9_Toolkit_Training_Local.ipynb"
+    Set-Commands ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9Studio_UI.ipynb"
+    Start-Detached "DB9Studio-style notebook" ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9Studio_UI.ipynb"
 } | Out-Null
 
 

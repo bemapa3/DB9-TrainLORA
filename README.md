@@ -111,4 +111,4 @@ Long-running jobs open in separate PowerShell windows so their logs remain visib
 
 ## DB9Studio-style local training notebook
 
-If you prefer the familiar DB9Studio workflow form layout, open `notebooks/0_DB9_Toolkit_Training_Local.ipynb` or click `DB9Studio-style UI` in `launcher_app.bat`. It combines setup, data processing, config generation, training, and testing in one notebook with `#@title` / `#@param` style controls.
+If you prefer the familiar DB9Studio workflow form layout, open `notebooks/0_DB9Studio_UI.ipynb` or click `DB9Studio-style UI` in `launcher_app.bat`. It opens a code-hidden widget UI for setup, data processing, upscale tiling, config generation, and training.
