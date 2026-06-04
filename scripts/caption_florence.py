@@ -4,7 +4,7 @@ caption_florence.py — Local Florence-2 Caption Generator
 Uses Microsoft Florence-2-large for offline image captioning.
 No API key needed — runs entirely on your GPU.
 
-Caption lengths (matching SDVN Colab):
+Caption lengths (matching DB9Studio workflow):
   Short  : <CAPTION>              (~10-30 tokens)
   Medium : <DETAILED_CAPTION>     (~10-100 tokens)
   Long   : <MORE_DETAILED_CAPTION> (~10-150 tokens)

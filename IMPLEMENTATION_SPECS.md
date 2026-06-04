@@ -9,7 +9,7 @@ Implement and maintain a local notebook-based Flux LoRA training toolkit for DB9
 - Project display name: `DB9-Toolkit-Trainner`
 - Config/project id: `db9_toolkit_trainner`
 - Repository: `https://github.com/bemapa3/DB9-TrainLORA`
-- Former folder/name: `SDVN-Local-Trainer`
+- Former folder/name: `DB9-Local-Trainer`
 
 ## Default Model
 

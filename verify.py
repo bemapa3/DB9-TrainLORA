@@ -67,7 +67,10 @@ def make_config(resolution: int = 1024, max_bucket_reso: int = 2048) -> str:
 
 def verify_notebooks() -> None:
     sources = {name: read_notebook(name) for name in NOTEBOOKS}
+    local_training = read_notebook("0_DB9_Toolkit_Training_Local.ipynb")
     checks = {
+        "DB9Studio-style local notebook": "Prepare Upscale Detail Dataset" in local_training,
+        "upscale detail mode param": "img2img_upscale" in local_training,
         "project name in setup": PROJECT_DISPLAY_NAME in sources["1_Setup.ipynb"],
         "ai-toolkit idempotent setup": "toolkit_dir.exists()" in sources["1_Setup.ipynb"],
         "Gemini key guard": "GEMINI_API_KEY" in sources["2_Prepare_Dataset.ipynb"],
@@ -136,11 +139,28 @@ def verify_flux2_resolution_limits() -> None:
         fail("2560px Flux 2 Klein config should fail")
 
 
+def verify_upscale_detail_script() -> None:
+    path = ROOT / "scripts" / "prepare_upscale_detail_dataset.py"
+    if not path.exists():
+        fail("Missing prepare_upscale_detail_dataset.py")
+    source = path.read_text(encoding="utf-8")
+    checks = {
+        "tile size guard": "--tile-size must be between 1 and 2048" in source,
+        "control output": "control_dir" in source,
+        "caption output": "caption_path.write_text" in source,
+        "detail filter": "min_detail_score" in source,
+    }
+    failed = [name for name, ok in checks.items() if not ok]
+    if failed:
+        fail("Upscale detail script checks failed: " + ", ".join(failed))
+
+
 def main() -> None:
     verify_notebooks()
     verify_caption_gemini()
     verify_config_generator()
     verify_flux2_resolution_limits()
+    verify_upscale_detail_script()
     print("OK: DB9-Toolkit-Trainner workflow smoke checks passed.")
 
 

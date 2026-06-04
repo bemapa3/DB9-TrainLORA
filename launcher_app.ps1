@@ -109,6 +109,11 @@ cd "$ProjectRoot"
 cd "$ProjectRoot\ai-toolkit"
 ..\.venv\Scripts\python.exe run.py ..\configs\db9_toolkit_trainner.yaml
 "@
+
+    UpscaleDetail = @"
+cd "$ProjectRoot"
+.\.venv\Scripts\python.exe scripts\prepare_upscale_detail_dataset.py --input datasets\raw --output datasets\processed --tile-size 2048 --overlap 256 --caption "high detail upscale restoration, sharp architectural detail"
+"@
 }
 
 $commandsBox.Text = @"
@@ -202,9 +207,15 @@ Add-Button "CUDA Check" 775 210 140 {
 } | Out-Null
 
 
-Add-Button "SDVN-style UI" 495 254 140 {
+Add-Button "DB9Studio-style UI" 495 254 140 {
     Set-Commands ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9_Toolkit_Training_Local.ipynb"
-    Start-Detached "SDVN-style notebook" ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9_Toolkit_Training_Local.ipynb"
+    Start-Detached "DB9Studio-style notebook" ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9_Toolkit_Training_Local.ipynb"
+} | Out-Null
+
+
+Add-Button "Upscale Tiles" 645 254 120 {
+    Set-Commands $commands.UpscaleDetail
+    Start-Detached "Prepare upscale detail tiles" ".\.venv\Scripts\python.exe scripts\prepare_upscale_detail_dataset.py --input datasets\raw --output datasets\processed --tile-size 2048 --overlap 256 --caption 'high detail upscale restoration, sharp architectural detail'"
 } | Out-Null
 
 $note = New-Object System.Windows.Forms.Label

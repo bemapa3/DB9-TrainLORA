@@ -2,9 +2,9 @@
 
 ## Repository Information
 - **Project**: DB9-Toolkit-Trainner
-- **Former name**: SDVN-Local-Trainer
+- **Former name**: DB9-Local-Trainer
 - **GitHub Repository**: https://github.com/bemapa3/DB9-TrainLORA
-- **Path**: `J:\!!_BAOTAPCODE\SDVN-Local-Trainer`
+- **Path**: `D:\BBB\DB9-Local-Trainer`
 - **Default config id**: `db9_toolkit_trainner`
 - **Default base model**: `black-forest-labs/FLUX.2-klein-base-9B`
 

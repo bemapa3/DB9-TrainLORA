@@ -14,7 +14,7 @@ Local Jupyter workflow for training DB9 Flux LoRA checkpoints with ai-toolkit.
 
 ```bash
 git clone https://github.com/bemapa3/DB9-TrainLORA.git
-cd SDVN-Local-Trainer
+cd DB9-Local-Trainer
 pip install -r requirements.txt
 jupyter notebook
 ```
@@ -109,6 +109,6 @@ For a simple clickable control panel, double-click `launcher_app.bat`. The launc
 
 Long-running jobs open in separate PowerShell windows so their logs remain visible.
 
-## SDVN-style local training notebook
+## DB9Studio-style local training notebook
 
-If you prefer the familiar SDVN Colab form layout, open `notebooks/0_DB9_Toolkit_Training_Local.ipynb` or click `SDVN-style UI` in `launcher_app.bat`. It combines setup, data processing, config generation, training, and testing in one notebook with `#@title` / `#@param` style controls.
+If you prefer the familiar DB9Studio workflow form layout, open `notebooks/0_DB9_Toolkit_Training_Local.ipynb` or click `DB9Studio-style UI` in `launcher_app.bat`. It combines setup, data processing, config generation, training, and testing in one notebook with `#@title` / `#@param` style controls.

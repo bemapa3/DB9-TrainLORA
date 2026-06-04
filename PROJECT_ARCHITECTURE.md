@@ -15,7 +15,7 @@ The current implementation keeps the notebook-first workflow and focuses on:
 ## Current Repository Layout
 
 ```text
-SDVN-Local-Trainer/
+DB9-Local-Trainer/
   notebooks/
     1_Setup.ipynb
     2_Prepare_Dataset.ipynb
