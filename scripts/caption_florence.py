@@ -14,7 +14,6 @@ Usage:
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
@@ -73,7 +72,12 @@ def caption_image(model, processor, device, image: Image.Image, task_prompt: str
         text=task_prompt,
         images=image,
         return_tensors="pt",
-    ).to(device, dtype)
+    )
+    # Move all tensors to device, but only cast pixel_values to model dtype
+    # input_ids MUST stay as int64 — casting to float16 would crash
+    inputs = {k: v.to(device) for k, v in inputs.items()}
+    if "pixel_values" in inputs:
+        inputs["pixel_values"] = inputs["pixel_values"].to(dtype)
     
     with torch.no_grad():
         generated_ids = model.generate(
