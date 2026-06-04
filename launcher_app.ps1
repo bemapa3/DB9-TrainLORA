@@ -201,6 +201,12 @@ Add-Button "CUDA Check" 775 210 140 {
     Run-Command "CUDA check" $cmd
 } | Out-Null
 
+
+Add-Button "SDVN-style UI" 495 254 140 {
+    Set-Commands ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9_Toolkit_Training_Local.ipynb"
+    Start-Detached "SDVN-style notebook" ".\.venv\Scripts\python.exe -m jupyter notebook notebooks/0_DB9_Toolkit_Training_Local.ipynb"
+} | Out-Null
+
 $note = New-Object System.Windows.Forms.Label
 $note.Text = "Tip: Full Setup, Jupyter, Clean, Caption, and Train open in separate consoles so long jobs keep running visibly."
 $note.AutoSize = $true

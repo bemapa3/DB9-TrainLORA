@@ -108,3 +108,7 @@ For a simple clickable control panel, double-click `launcher_app.bat`. The launc
 - CUDA check
 
 Long-running jobs open in separate PowerShell windows so their logs remain visible.
+
+## SDVN-style local training notebook
+
+If you prefer the familiar SDVN Colab form layout, open `notebooks/0_DB9_Toolkit_Training_Local.ipynb` or click `SDVN-style UI` in `launcher_app.bat`. It combines setup, data processing, config generation, training, and testing in one notebook with `#@title` / `#@param` style controls.
