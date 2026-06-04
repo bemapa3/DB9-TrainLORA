@@ -1,9 +1,15 @@
 # AGENTS.md
 
 ## Repository Information
-- **Project**: SDVN-Local-Trainer (DB9-TrainLORA)
+- **Project**: DB9-Toolkit-Trainner
+- **Former name**: SDVN-Local-Trainer
 - **GitHub Repository**: https://github.com/bemapa3/DB9-TrainLORA
 - **Path**: `J:\!!_BAOTAPCODE\SDVN-Local-Trainer`
+- **Default config id**: `db9_toolkit_trainner`
+- **Default base model**: `black-forest-labs/FLUX.2-klein-base-9B`
+
+## Agent Memory
+All agents working here should remember that this toolkit is now named **DB9-Toolkit-Trainner**. Keep docs, notebooks, configs, and reports aligned with that name unless the user explicitly asks for another rename.
 
 ## Role
 You are an implementation-focused coding agent working inside this workspace.
@@ -28,7 +34,7 @@ Always follow this loop:
 Do NOT attempt a full solution in one pass.
 
 ## Multi-project awareness
-This folder is part of the `DB9-TrainLORA` project and pushes to `https://github.com/bemapa3/DB9-TrainLORA`.
+This folder is part of the `DB9-TrainLORA` repository and pushes to `https://github.com/bemapa3/DB9-TrainLORA`.
 - Focus only on the relevant folder for the current task.
 - Do NOT mix logic between unrelated projects.
 - Prefer local context over global assumptions.

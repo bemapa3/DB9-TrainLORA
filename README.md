@@ -1,55 +1,74 @@
-# 🚀 SDVN Local Trainer
+# DB9-Toolkit-Trainner
 
-Train Flux LoRA trên máy local với Jupyter notebooks.
+Local Jupyter workflow for training DB9 Flux LoRA checkpoints with ai-toolkit.
 
-## 📋 Requirements
+## Requirements
 
-- Python 3.10+
-- CUDA 11.8+
-- GPU với ≥12GB VRAM (khuyến nghị: RTX 5090 32GB)
+- Python 3.10 or 3.11 recommended
+- CUDA-capable NVIDIA GPU with at least 12 GB VRAM
+- Git
+- Hugging Face access for the selected base model
+- Gemini API key only if using Gemini auto-captioning
 
-## 🔧 Setup
+## Setup
 
-1. Clone repo:
 ```bash
-git clone https://github.com/your-username/SDVN-Local-Trainer
+git clone https://github.com/bemapa3/DB9-TrainLORA.git
 cd SDVN-Local-Trainer
-```
-
-2. Install dependencies:
-```bash
 pip install -r requirements.txt
-```
-
-3. Start Jupyter:
-```bash
 jupyter notebook
 ```
 
-4. Mở `notebooks/1_Setup.ipynb` và làm theo hướng dẫn
+Open `notebooks/1_Setup.ipynb` first. It installs local dependencies, clones or updates `ai-toolkit`, initializes submodules, and installs `ai-toolkit` requirements.
 
-## 📁 Workflow
+## Workflow
 
-1. **Setup** (`1_Setup.ipynb`) — Cài đặt môi trường
-2. **Prepare Dataset** (`2_Prepare_Dataset.ipynb`) — Xử lý dataset
-3. **Train Config** (`3_Train_Config.ipynb`) — Cấu hình training
-4. **Train** (`4_Train.ipynb`) — Training
-5. **Test LoRA** (`5_Test_LoRA.ipynb`) — Test checkpoints
+1. `notebooks/1_Setup.ipynb` - environment and ai-toolkit setup
+2. `notebooks/2_Prepare_Dataset.ipynb` - clean dataset and generate captions
+3. `notebooks/3_Train_Config.ipynb` - generate `configs/db9_toolkit_trainner.yaml`
+4. `notebooks/4_Train.ipynb` - run ai-toolkit training
+5. `notebooks/5_Test_LoRA.ipynb` - load the newest `.safetensors` checkpoint and test it
 
-## 🎯 Optimized cho RTX 5090
+## Dataset Layout
 
-- Batch size: 6-8
-- LoRA rank: 64-128
-- Resolution: 1536×1536
-- No quantization needed
-- Full precision training
+```text
+datasets/
+  raw/                 # original images
+  processed/
+    img/               # cleaned training images
+    captions/          # one .txt caption per image
+```
 
-## 📊 Estimated Training Time
+## Defaults
 
-- 2000 steps, batch 6, rank 64: ~12-15 minutes
-- Dataset 100 images: ~2000-2500 steps recommended
+- Project display name: `DB9-Toolkit-Trainner`
+- Config project id: `db9_toolkit_trainner`
+- Base model: `black-forest-labs/FLUX.2-klein-base-9B`
+- Batch size: 6
+- LoRA rank/alpha: 64/64
+- Resolution: 1536 x 1536
+- Optimizer: `adamw8bit`
 
-## 🔗 Links
+## Environment
+
+Copy `.env.example` to `.env` and set values as needed:
+
+```bash
+GEMINI_API_KEY=your_api_key_here
+HF_TOKEN=your_token_here
+```
+
+`GEMINI_API_KEY` is required only for Gemini captioning. `HF_TOKEN` may be required by Hugging Face depending on model access.
+
+## Verification
+
+```bash
+python verify.py
+```
+
+This checks notebook JSON, generated config shape, expected project/model defaults, and key workflow path conventions. It does not run GPU training.
+
+## Links
 
 - ai-toolkit: https://github.com/ostris/ai-toolkit
 - Flux 2 Klein: https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9B
