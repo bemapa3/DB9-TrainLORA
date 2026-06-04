@@ -1,0 +1,58 @@
+#@title ✨ 2.1 Xử lý dữ liệu
+
+# @markdown 🟡 `Train nhiều lora bằng cách nhập nhiều thư mục, cách nhau bằng dấu phẩy (,)`
+TrainFolder = "/content/drive/MyDrive/SD-Data/TrainData"  # @param {type:'string'}
+# @markdown 🟡 `Thư mục control chỉ áp dụng cho Flux Kontext, Qwen-Edit, Wan I2V, Hi-Dream E1`
+
+# @markdown 💡 `Ảnh của thư mục Control được coi là ảnh đầu vào, thư mục train được coi là ảnh kết quả, kontext có thể train không cần control folder. 2 thư mục cần trùng tên ảnh`
+ControlFolder = ""  # @param {type:'string'}
+ControlFolder_2 = ""  # @param {type:'string'}
+ControlFolder_3 = ""  # @param {type:'string'}
+DataClean = False #@param {type:"boolean"}
+No_gen_caption = False #@param {type:"boolean"}
+# @markdown 🟡 `OCR Prompt`
+
+#@markdown 💡 ` Chạy Florence với Caption_Tools để tránh lỗi vặt, nên dùng Gemini API thay thế`
+
+#@markdown [![](https://img.shields.io/badge/Caption-Tools-blue)](https://colab.research.google.com/github/StableDiffusionVN/SDVN-training-colab-flux/blob/main/SDVN_Caption_Tools.ipynb)
+
+Caption = 'None' # @param ['None', 'WD14','Florence', 'APIGemini | 2.5 Flash', ' APIGemini | 2.5 Pro', 'APIGemini | 2.5 Flash Lite',  'APIOpenAI | GPT 5', 'APIOpenAI | GPT 5-mini', 'APIOpenAI | GPT 5-nano']
+APIkey = "" # @param {type:'string'}
+Caption_Length = "Medium" # @param ["Short","Medium","Long"]
+# @markdown 🟡 `API Caption`
+API_Prompt = "" # @param {type:'string'}
+# @markdown 🟡 `Thêm caption tuỳ chọn`
+Custom_Caption = "" # @param {type:'string'}
+AddFolderName = False #@param {type:"boolean"}
+Remove_Caption = False #@param {type:"boolean"}
+Append = False #@param {type:"boolean"}
+
+if No_gen_caption == True:
+  Caption = 'None'
+  Custom_Caption = ''
+  AddFolderName = False
+  
+extension =".txt"
+train_folder_list = TrainFolder.split(",")
+control_folder_list = ControlFolder.split(",")
+control_folder_list_2 = ControlFolder_2.split(",")
+control_folder_list_3 = ControlFolder_3.split(",")
+
+Cap_prompt = {
+    'Short':['<CAPTION>',10,30,'short'],
+    'Medium':['<DETAILED_CAPTION>',10,100,'medium-length'],
+    'Long':['<MORE_DETAILED_CAPTION>',10,150,'very long']
+}
+  
+for folder in train_folder_list:
+  if DataClean == True :
+    %cd /content
+    clean_directory(folder)
+  if Caption != "None":
+    caption_dir(folder,Cap_prompt[Caption_Length][0])
+  if AddFolderName:
+    add_forder_name(folder)
+  if Custom_Caption != "":
+    process_dir(folder, Custom_Caption, Append, Remove_Caption)
+  
+  check_folder_train(TrainFolder)
