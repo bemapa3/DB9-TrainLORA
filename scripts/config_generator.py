@@ -46,6 +46,9 @@ def generate_config(
     training_mode: str = "text2img",
     control_folder_path: str = "",
     trigger_word: str = "",
+    # --- Model Architecture ---
+    model_type: str = "flux",  # "flux", "sdxl", "sd15"
+
 ) -> str:
     """
     Generate ai-toolkit YAML config.
@@ -107,9 +110,14 @@ def generate_config(
     # Build model config
     model_config = {
         "name_or_path": model_path,
-        "is_flux": True,
         "quantize": quantize,
     }
+    if model_type.lower() == "flux":
+        model_config["is_flux"] = True
+    elif model_type.lower() == "sdxl":
+        model_config["is_xl"] = True
+    elif model_type.lower() == "sd15":
+        model_config["is_v2"] = False
     
     # Build train config
     train_config = {
@@ -124,17 +132,20 @@ def generate_config(
         "optimizer": optimizer,
         "max_grad_norm": 1.0,
         "gradient_checkpointing": gradient_checkpointing,
-        "noise_scheduler": "flowmatch",
         "save_every": save_every,
         "sample_every": sample_every,
         "sample_prompts": sample_prompts if sample_prompts else [],
     }
     
+    # Flux requires flowmatch
+    if model_type.lower() == "flux":
+        train_config["noise_scheduler"] = "flowmatch"
+    
     # Build sample config
     sample_config = {
-        "sampler": "flowmatch",
+        "sampler": "flowmatch" if model_type.lower() == "flux" else "euler_a",
         "sample_steps": 20,
-        "cfg_scale": 1.0,
+        "cfg_scale": 1.0 if model_type.lower() == "flux" else 7.0,
         "width": resolution,
         "height": resolution,
     }
