@@ -5,7 +5,7 @@ from pathlib import Path
 import yaml
 
 sys.path.append("scripts")
-from config_generator import FLUX2_KLEIN_MAX_RESOLUTION, generate_config
+from config_generator import FLUX2_KLEIN_MAX_RESOLUTION, generate_config, resolve_model_path
 
 PROJECT_DISPLAY_NAME = "DB9-Toolkit-Trainner"
 PROJECT_NAME = "db9_toolkit_trainner"
@@ -125,6 +125,21 @@ def verify_config_generator() -> None:
         fail("Config checks failed: " + ", ".join(failed))
 
 
+def verify_local_model_resolution() -> None:
+    local = ROOT / "models" / "FLUX.2-klein-base-9B"
+    local.mkdir(parents=True, exist_ok=True)
+    marker = local / "model_index.json"
+    existed = marker.exists()
+    if not existed:
+        marker.write_text("{}", encoding="utf-8")
+    try:
+        resolved = resolve_model_path(MODEL_ID, ROOT)
+        if resolved != local.resolve().as_posix():
+            fail("Flux 2 Klein local model path was not preferred")
+    finally:
+        if not existed:
+            marker.unlink()
+
 def verify_flux2_resolution_limits() -> None:
     parsed = yaml.safe_load(make_config(resolution=2048, max_bucket_reso=2048))
     sample = parsed["config"]["process"][0]["sample"]
@@ -164,6 +179,8 @@ def verify_upscale_detail_script() -> None:
     ui_source = (ROOT / "scripts" / "db9studio_ui.py").read_text(encoding="utf-8")
     checks.update({
         "DB9Studio hidden UI": "Build Size-Degrade Pairs" in ui_source,
+        "2.1c accordion title": "2.1c Size-degrade pairs" in ui_source,
+        "local Flux 2 resolver": "resolve_model_path(model_path, PROJECT_ROOT)" in ui_source,
     })
     failed = [name for name, ok in checks.items() if not ok]
     if failed:

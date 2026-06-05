@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import yaml
 
 FLUX2_KLEIN_MAX_RESOLUTION = 2048
@@ -20,6 +22,19 @@ DB9_BUCKET_RATIOS = [
 def _is_flux2_klein(model_path: str) -> bool:
     normalized = model_path.lower()
     return "flux.2-klein" in normalized or "flux2-klein" in normalized
+
+DEFAULT_FLUX2_KLEIN_MODEL_ID = "black-forest-labs/FLUX.2-klein-base-9B"
+DEFAULT_LOCAL_FLUX2_KLEIN_PATH = Path("models") / "FLUX.2-klein-base-9B"
+
+
+def resolve_model_path(model_path: str, project_root: str | Path = ".") -> str:
+    """Prefer a local Flux 2 Klein snapshot when it exists."""
+    if not _is_flux2_klein(model_path):
+        return model_path
+    local_path = Path(project_root) / DEFAULT_LOCAL_FLUX2_KLEIN_PATH
+    if (local_path / "model_index.json").exists():
+        return local_path.resolve().as_posix()
+    return model_path
 
 
 def validate_training_config(

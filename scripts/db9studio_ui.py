@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import os
 import subprocess
 import sys
@@ -169,10 +169,11 @@ sample_prompt = W.Text(description="Sampler_Prompt", value="A portrait of a pers
 btn_config = W.Button(description="Generate Config", button_style="success", icon="cog")
 def gen_config(_):
     try:
-        from scripts.config_generator import generate_config
+        from scripts.config_generator import generate_config, resolve_model_path
         res = int(str(resolution.value).split(',')[0].strip())
         bs = min(batch_size.value, 1) if low_vram.value else batch_size.value
         model_path = "black-forest-labs/FLUX.2-klein-base-9B" if type_train.value == "FLUX.2-klein-base-9B" else "black-forest-labs/FLUX.1-dev"
+        model_path = resolve_model_path(model_path, PROJECT_ROOT)
         processed_path = PROJECT_ROOT / processed_folder.value
         img_path = processed_path / "img"
         cap_path = processed_path / "captions"
@@ -219,7 +220,7 @@ btn_train.on_click(train)
 train_box = W.VBox([W.HBox([run_train_flag, btn_train])])
 
 accordion = W.Accordion(children=[setup_box, data_box, tile_box, pair_box, config_box, train_box])
-for i, title in enumerate(["☕ 1. Cai dat", "✨ 2.1 Xu ly du lieu", "🧩 2.1b Upscale detail", "⚙️ 2.2 Cai dat train", "🧪 3. Train"]):
+for i, title in enumerate(["1. Cai dat", "2.1 Xu ly du lieu", "2.1b Upscale detail", "2.1c Size-degrade pairs", "2.2 Cai dat train", "3. Train"]):
     accordion.set_title(i, title)
 
 display(HTML('''<style>div.input{display:none;} div.prompt{display:none;} .widget-label{font-weight:600;}</style><h2>DB9Studio Toolkit Training</h2><div style="background:#2b2f33;border:1px solid #555;border-radius:6px;padding:6px 10px;color:#eee;font-family:monospace;display:inline-block;margin-bottom:8px">Code hidden - use controls below - Flux 2 Klein max 2048px</div>'''))
