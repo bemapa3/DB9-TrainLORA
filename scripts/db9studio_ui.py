@@ -166,7 +166,17 @@ min_bucket = W.IntText(description="Min_Bucket_Reso", value=512, style=style, la
 max_bucket = W.IntText(description="Max_Bucket_Reso", value=2048, style=style, layout=third)
 bucket_step = W.IntText(description="Bucket_step", value=64, style=style, layout=third)
 sample_prompt = W.Text(description="Sampler_Prompt", value="A portrait of a person in DB9 style, highly detailed", style=style, layout=wide)
+btn_validate = W.Button(description="Validate Dataset", button_style="info", icon="search")
 btn_config = W.Button(description="Generate Config", button_style="success", icon="cog")
+def validate_dataset(_):
+    processed_path = PROJECT_ROOT / processed_folder.value
+    control_path = control_folder.value or str(Path(processed_folder.value) / "control")
+    cmd = f'"{py()}" scripts/validate_dataset.py --processed "{processed_path}" --mode {training_mode.value}'
+    if training_mode.value != "text2img":
+        cmd += f' --control "{PROJECT_ROOT / control_path}"'
+    run_cmd("Validate dataset names", cmd)
+btn_validate.on_click(validate_dataset)
+
 def gen_config(_):
     try:
         from scripts.config_generator import generate_config, resolve_model_path
@@ -177,6 +187,7 @@ def gen_config(_):
         processed_path = PROJECT_ROOT / processed_folder.value
         img_path = processed_path / "img"
         cap_path = processed_path / "captions"
+        validate_dataset(None)
         if not img_path.exists() or not any(img_path.iterdir()):
             raise FileNotFoundError(f"No target images found in {img_path}. Build pairs first.")
         if not cap_path.exists() or not any(cap_path.glob('*.txt')):
@@ -202,7 +213,7 @@ def gen_config(_):
         with log:
             print(f"ERROR Generate Config: {type(exc).__name__}: {exc}")
 btn_config.on_click(gen_config)
-config_box = W.VBox([type_train, note("Nen dung Low_VRAM neu bi OOM"), W.HBox([training_mode, low_vram, grad_ckpt, bucketing]), W.HBox([lora_name, output_folder]), W.HBox([steps, save_steps, sample_steps]), resolution, W.HBox([batch_size, lr, lr_scheduler]), W.HBox([dim, alpha, optimizer]), W.HBox([min_bucket, max_bucket, bucket_step]), sample_prompt, btn_config])
+config_box = W.VBox([type_train, note("Nen dung Low_VRAM neu bi OOM"), W.HBox([training_mode, low_vram, grad_ckpt, bucketing]), W.HBox([lora_name, output_folder]), W.HBox([steps, save_steps, sample_steps]), resolution, W.HBox([batch_size, lr, lr_scheduler]), W.HBox([dim, alpha, optimizer]), W.HBox([min_bucket, max_bucket, bucket_step]), sample_prompt, W.HBox([btn_validate, btn_config])])
 
 # Train
 run_train_flag = W.Checkbox(description="RunTrain", value=False, indent=False)

@@ -54,3 +54,9 @@ Always end with:
 - Verified:
 - Assumptions:
 - Risks / next step:
+
+## Current Handoff Notes
+- Prefer local Flux 2 Klein snapshots at `models/FLUX.2-klein-base-9B`; avoid remote HF model ids during training when possible.
+- Runtime ai-toolkit patches may exist under `ai-toolkit/` on the training machine and are not guaranteed to be committed upstream unless this folder is part of the repo checkout.
+- Before train, run `scripts/validate_dataset.py` or the UI `Validate Dataset` button to catch bad filenames and missing img/caption/control stems.
+- Current Flux 2 Klein debugging reached CUDA OOM during Qwen3 prompt encoding after loader issues were patched. Continue from `FLUX2_KLEIN_TRAINING_STATUS.md`.

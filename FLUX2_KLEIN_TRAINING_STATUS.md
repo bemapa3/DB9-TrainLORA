@@ -53,3 +53,21 @@ models/FLUX.2-klein-base-9B/
 ```
 
 Generated configs should use a local `name_or_path` when that folder exists.
+## Latest progress update
+
+- Added repository-side local model resolution so UI-generated configs prefer `models/FLUX.2-klein-base-9B` when present.
+- Added dataset filename validation with `BAD_NAME` logs for missing captions, missing controls, orphan files, and unsafe stems.
+- Added a UI `Validate Dataset` button and automatic validation before config generation.
+- Added README install/Jupyter/upscale optimization notes.
+
+## Current active runtime issue
+
+Training advanced past model loading and failed at Qwen3 prompt encoding with CUDA OOM on a 32GB GPU. Recommended next run settings:
+
+- Tile/resolution: 1024 or 1536 before returning to 2048.
+- Batch size: 1.
+- Gradient accumulation: 4-8.
+- Keep gradient checkpointing enabled.
+- Set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` before training.
+
+If OOM persists, patch prompt/text encoder handling so Qwen prompt encoding is cached/offloaded rather than kept fully on GPU during training.

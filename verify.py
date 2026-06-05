@@ -177,10 +177,13 @@ def verify_upscale_detail_script() -> None:
         "pair caption copy": "copy_caption" in pair_source,
     })
     ui_source = (ROOT / "scripts" / "db9studio_ui.py").read_text(encoding="utf-8")
+    validator_source = (ROOT / "scripts" / "validate_dataset.py").read_text(encoding="utf-8")
     checks.update({
         "DB9Studio hidden UI": "Build Size-Degrade Pairs" in ui_source,
         "2.1c accordion title": "2.1c Size-degrade pairs" in ui_source,
         "local Flux 2 resolver": "resolve_model_path(model_path, PROJECT_ROOT)" in ui_source,
+        "validate dataset button": "Validate Dataset" in ui_source,
+        "bad name validator": "BAD_NAME" in validator_source,
     })
     failed = [name for name, ok in checks.items() if not ok]
     if failed:
