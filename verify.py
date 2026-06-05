@@ -115,6 +115,7 @@ def verify_config_generator() -> None:
         "dataset image path": dataset["folder_path"] == "datasets/processed/img",
         "dataset caption path": dataset["caption_folder"] == "datasets/processed/captions",
         "flux flag": process["model"].get("is_flux") is True,
+        "Flux 2 Klein disables text encoder 2": process["model"].get("use_text_encoder_2") is False,
         "flowmatch scheduler": train.get("noise_scheduler") == "flowmatch",
         "sample prompts list": isinstance(train.get("sample_prompts"), list),
         "max resolution meta": parsed["meta"].get("flux2_klein_max_resolution") == FLUX2_KLEIN_MAX_RESOLUTION,

@@ -143,6 +143,8 @@ def generate_config(
     }
     if model_type.lower() == "flux":
         model_config["is_flux"] = True
+        if _is_flux2_klein(model_path):
+            model_config["use_text_encoder_2"] = False
     elif model_type.lower() == "sdxl":
         model_config["is_xl"] = True
     elif model_type.lower() == "sd15":
